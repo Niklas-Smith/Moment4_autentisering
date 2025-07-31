@@ -1,12 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 require("dotenv").config();
-const sqlite3 = require("sqlite3").verbose
+const sqlite3 = require("sqlite3").verbose()
 const app = express()
 app.use(bodyParser.json())
 const port = process.env.PORT || 3000
+const bcrypt = require("bcrypt")
 
-
+const db = new sqlite3.Database(process.env.DATABASE);
 
 
 
@@ -18,8 +19,24 @@ app.post("/api/register", async(req, res) => {
          return res.status(400).json({error: "must have both password and username" })
 
     }
+/*kollar om användare finns (gör senare)   */
 
-     res.status(201).json({Message: "New user Reqister"})
+const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+
+const sql = `INSERT INTO users_accunts(username, password)VALUES(?,?)`;
+db.run(sql, [username, hashedPassword], (err) => {
+if(err){
+res.status(400).json({Message: "Error when created user"})
+
+}else{
+
+ res.status(201).json({Message: "New user Reqister"})
+}
+
+});
+
+    
 
 
   } catch (error){
@@ -43,13 +60,28 @@ app.post("/api/login" , async(req, res)=> {
 
     }
 
-    if(username === "niklas" && password === "password") {
-     res.status(201).json({Message: "You are logged in"})
+    const sql = `SELECT * FROM users_accunts WHERE username =? ` ;
+    db.get(sql, [username], async(err, row) => {
+    if(err) {
+             res.status(400).json({error: "Error with authenticator"})
+       
+    } else if(!row){
+ res.status(401).json({error: "wrong password or username!"})
+ } else {
+       
+   const matchPassword = await bcrypt.compare(password, row.password);
 
-    } else {
+if(!matchPassword) {
 
-     res.status(401).json({error: "Wrong username or password"})
-    }
+res.status(401).json({Message: "wrong password or username!"}) 
+ 
+} else {
+ res.status(200).json({Message: "You are login"}) 
+
+}
+ }
+
+    });
   } catch (error){
         res.status(500).json( {error : "samething Went wrong....."}  )
 

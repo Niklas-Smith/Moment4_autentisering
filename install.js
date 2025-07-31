@@ -1,15 +1,20 @@
+
+/*  includera dotenv,express och sqliter3 */
 require("dotenv").config();
 const express = require("express");
 const sqlite3 = require("sqlite3").verbose();
 
+/*  skapar databasen */
 const db = new sqlite3.Database(process.env.DATABASE);
 
 
-/*ta bort tablelen om den finns och skapar ny table */
-db.serialize(()=> {
 
+db.serialize(()=> {
+/*ta bort tabelen om den finns */
 db.run("DROP TABLE IF EXISTS users_accunts;")
 
+
+/*  skapar ny table */
 db.run(
     
     `
