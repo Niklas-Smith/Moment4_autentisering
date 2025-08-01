@@ -12,7 +12,7 @@ const db = new sqlite3.Database(process.env.DATABASE);
 db.serialize(()=> {
 /*ta bort tabelen om den finns */
 db.run("DROP TABLE IF EXISTS users_accunts;")
-
+db.run("DROP TABLE IF EXISTS cars;")
 
 /*  skapar ny table */
 db.run(
@@ -26,8 +26,31 @@ created DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 `);
 
+
+
+db.run(
+    
+    `
+  CREATE TABLE cars (
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+carbrand VARCHAR(255) NOT NULL ,
+carmodel VARCHAR(255) NOT NULL,
+price INTERGER NOT NULL,
+year INTERGER NOT NULL,
+created DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+`);
+
+
+
+
 console.log("Table is created")
+
+
 }
+
+
+
 );
 
 /*stänger databasen */
